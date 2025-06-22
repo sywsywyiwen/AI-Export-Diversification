@@ -1,0 +1,69 @@
+---
+title: "treatment.effects.aggregate"
+author: "Yiwen Sun"
+date: "2024-06-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+```
+
+```{r}
+# Example data frames for four countries
+thai.treatment.effects <- data.frame(
+  Country = "Thailand",
+  Year = 1970:2014,
+  Effect = thai.treatment.effects
+)
+
+
+chile.treatment.effects <- data.frame(
+  Country = "Chile",
+  Year = 1970:2014,
+  Effect = chile.treatment.effects
+)
+
+# Combine the data frames
+combined <- rbind(thai.treatment.effects,chile.treatment.effects)
+rownames(combined) <- NULL
+
+# Define rows to delete
+rows_to_delete <- c(1:18, 46:61)
+
+# Delete selected rows
+cleaned <- combined[-rows_to_delete, ]
+```
+
+
+```{r}
+ggplot(cleaned, aes(x = w.weight, y = Country)) +
+  geom_boxplot(width = 0.2) +  # Adjust the width to make boxes narrower
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red") +  # Add a vertical dashed line at 0
+  labs(x = "",
+       y = " ") +
+  theme_minimal()
+```
+
+```{r}
+# calculate the time-averaged effects
+mean(cleaned$w.weight[cleaned$Country=="Thailand"])
+
+mean(cleaned$w.weight[cleaned$Country=="Chile"])
+```
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,142 @@
+---
+title: "robustness check"
+author: "Yiwen Sun"
+date: "2024-06-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+```
+
+1. Examination of the post-treatment shocks
+```{r}
+library(dplyr)
+library(ggplot2)
+
+
+# Filter data for years after 1985
+sample5.controls_filtered <- sample5.controls %>%
+  filter(year > 1985 & !country %in% c("Iraq", "Rwanda", "Guinea-Bissau", 
+                                       "Sierra Leone", "Central African Republic", "Chad"))
+
+sample5.controls_filtered.2 <- sample5.controls %>%
+  filter(year > 1985)
+
+sample1_filtered <- sample1 %>% filter(year > 1985)
+sample2_filtered <- sample2 %>% filter(year > 1985)
+sample4_filtered <- sample4 %>% filter(year > 1985)
+sample5_filtered <- sample5 %>% filter(year > 1985)
+
+# Plot for unfiltered data
+ggplot() +
+  geom_line(data = sample5.controls_filtered.2, aes(x = year, y = gdpg, color = country), linetype = "dashed") +
+  geom_line(data = subset(sample1_filtered, country == "Thailand"), aes(x = year, y = gdpg), color = "black", size = 0.8) +
+  geom_line(data = subset(sample5_filtered, country == "Chile"), aes(x = year, y = gdpg), color = "black", size = 0.8) +
+  labs(
+    x = "",
+    y = "GDP Growth (%)",
+    color = "Country"
+  ) +
+  ylim(-60, 60) + # Specify the y-axis range
+  theme_minimal()
+
+# Plot for filtered data
+ggplot() +
+  geom_line(data = sample5.controls_filtered, aes(x = year, y = gdpg, color = country), linetype = "dashed") +
+  geom_line(data = subset(sample1_filtered, country == "Thailand"), aes(x = year, y = gdpg), color = "black", size = 0.8) +
+  geom_line(data = subset(sample5_filtered, country == "Chile"), aes(x = year, y = gdpg), color = "black", size = 0.8) +
+  labs(
+    x = "",
+    y = "GDP Growth (%)",
+    color = "Country"
+  ) +
+  ylim(-60, 60) + # Specify the y-axis range
+  theme_minimal()
+
+
+
+
+
+```
+
+2. Examination of the spillover effects
+```{r}
+sample1.controls <- subset(sample1, sample2$country != "Thailand")
+
+sample1.controls$group1 <- ifelse(sample1$year>1987, 1, 0)
+sample1.controls$group2 <- ifelse(sample1$year>2002, 1, 0)
+sample1.controls$group3 <- ifelse(sample1$year>1985, 1, 0)
+sample1.controls$group4 <- ifelse(sample1$year>1984, 1, 0)
+
+summary(lm(exportdiv ~ group1 + ncc + pscom + psenroll + trade + fdi + gdpg + log(popn) + govscore + latitude, data = sample1.controls))
+
+summary(lm(exportdiv ~ group2 + ncc + pscom + psenroll + trade + fdi + gdpg + log(popn) + govscore + latitude, data = sample1.controls))
+
+summary(lm(exportdiv ~ group3 + ncc + pscom + psenroll + trade + fdi + gdpg + log(popn) + govscore + latitude, data = sample1.controls))
+
+summary(lm(exportdiv ~ group4 + ncc + pscom + psenroll + trade + fdi + gdpg + log(popn) + govscore + latitude, data = sample1.controls))
+```
+
+3. Examination of the reverse causality
+```{r}
+library(gridExtra) 
+## Thailand
+thai.exportdiv <- subset(sample1, country == "Thailand")
+# Create a line plot with a dashed vertical line at the year 1988
+plot1 <- ggplot(thai.exportdiv, aes(x = year, y = exportdiv)) +
+  geom_line() +
+  labs(x = "Thailand", 
+       y = "Export Diversification") +
+  ylim(1, 5) +
+  theme_minimal() +
+  geom_vline(xintercept = 1988, linetype = "dashed", color = "grey", size = 1) +
+  annotate("text", x = 1993, y = 7, label = "Treatment Year", angle = 0, vjust = -0.5)
+
+
+## South Africa
+sa.exportdiv <- subset(sample2, country == "South Africa")
+# Create a line plot with a dashed vertical line at the year 2003
+plot2 <-ggplot(sa.exportdiv, aes(x = year, y = exportdiv)) +
+  geom_line() +
+  labs(x = "South Africa", 
+       y = "Export Diversification") +
+  ylim(1, 5) +
+  theme_minimal() +
+  geom_vline(xintercept = 2003, linetype = "dashed", color = "grey", size = 1) +
+  annotate("text", x = 2008, y = 7, label = "", angle = 0, vjust = -0.5)
+
+
+
+## Chile
+chile.exportdiv <- subset(sample5, country == "Chile")
+# Create a line plot with a dashed vertical line at the year 1985
+plot3 <-ggplot(chile.exportdiv, aes(x = year, y = exportdiv)) +
+  geom_line() +
+  labs(x = "Chile", 
+       y = "Export Diversification") +
+  ylim(1, 5) +
+  theme_minimal() +
+  geom_vline(xintercept = 1985, linetype = "dashed", color = "grey", size = 1) +
+  annotate("text", x = 1990, y = 7, label = "", angle = 0, vjust = -0.5)
+
+
+plot3
+
+plot1
+```
+
+
+
+
+
+
+
+
+
+
+
